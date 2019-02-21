@@ -1,4 +1,4 @@
-from common_scanpath import scanpath_comparison as scan_comp
+from src.common_scanpath import scanpath_comparison as scan_comp
 
 def getNumberedSequence(Sequence, aoi_data):
     numberedSequence = []
@@ -252,8 +252,7 @@ def run_sta(raw_sequences, aoi_data):
         similarity: a dict containing similarity of individual scanpaths to the common one - {'ID1': 66.66, 'ID2': ... }
     """
 
-    # Preliminary Stage is already complete - sequences are passed in via argument
-    print(aoi_data)
+    # Preliminary Stage is already complete - sequences are passed in via arguments
 
     # First-Pass
     mySequences_num = {}

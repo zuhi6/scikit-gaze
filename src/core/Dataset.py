@@ -1,9 +1,9 @@
-from common_scanpath import STA
-from common_scanpath import eMine
-from common_scanpath import Dotplots
-from core.Aoi import Aoi
-from core.Task import Task
-from core.Participant import Participant
+from src.common_scanpath import STA
+from src.common_scanpath import eMine
+from src.common_scanpath import Dotplots
+from src.core.Aoi import Aoi
+from src.core.Task import Task
+from src.core.Participant import Participant
 import csv
 
 class Dataset:
