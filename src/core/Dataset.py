@@ -68,9 +68,7 @@ class Dataset:
             task = line.split()
             task_array.append(Task(task[0],task[1]))
         return task_array
-    def sta(self):
-        return STA.run_sta(self.create_raw_sequences(),self.create_aoi_array())
-
+        
     def eMine(self):
         return eMine.run_emine(self.create_raw_sequences())
     

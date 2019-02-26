@@ -26,11 +26,13 @@ def convert_to_str_array(scanpaths):
     return scanpath_strs
 
 
-def calc_similarity(scanpath1, scanpath2):
+def calc_similarity(scanpath1, scanpath2, algorithm=False):
     """ Calculates similarity between two scanpath strings represented as percentage. """
-
+    if not algorithm:
+        algorithm = levenshtein_distance.get_edit_distance
+    
     # Calculate the similarity value based on the edit distance of given scanpaths
-    edit_distance = levenshtein_distance.get_edit_distance(scanpath1, scanpath2)
+    edit_distance = algorithm(scanpath1, scanpath2)
     similarity = 1 - (edit_distance / (len(scanpath1) if len(scanpath1) > len(scanpath2) else len(scanpath2)))
 
     # Return similarity as percentage
