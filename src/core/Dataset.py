@@ -2,18 +2,15 @@ from src.common_scanpath import STA
 from src.common_scanpath import eMine
 from src.common_scanpath import Dotplots
 from src.core.Aoi import Aoi
-from src.core.Task import Task
 from src.core.Participant import Participant
 import csv
 
 class Dataset:
 
-    def __init__(self,dataset_file_path,aoi_file_path=False,task_file_path=False,filtered_dataset=False):
+    def __init__(self,dataset_file_path,aoi_file_path=False,filtered_dataset=False):
         self.dataset_file_path = dataset_file_path
         self.aoi_file_path = aoi_file_path
-        self.task_file_path = task_file_path
         self.aoi_array = self.load_aoi()
-        self.task_array = self.load_tasks()
         self.participants = []
         self.last_participant_name = ""
         self.filtered_dataset = filtered_dataset
@@ -59,30 +56,13 @@ class Dataset:
             aoi_array.append(Aoi(aoi[0],aoi[1],aoi[2],aoi[3],aoi[4],aoi[5]))
         return aoi_array
 
-    def load_tasks(self):
-        if(not self.task_file_path):
-            return
-        task_data = open(self.task_file_path)
-        task_array = []
-        for line in task_data:
-            task = line.split()
-            task_array.append(Task(task[0],task[1]))
-        return task_array
-        
-    def eMine(self):
-        return eMine.run_emine(self.create_raw_sequences())
-    
-    def dotplots(self):
-        return Dotplots.run_dotplot(self.create_raw_sequences())
-
     def create_raw_sequences(self):
         raw_sequences = {}
         for participant in self.participants:
             raw_sequences[participant.id] = participant.scanpath
         return raw_sequences
 
-    def create_aoi_array(self):
-        sta_aoi_array = []
-        for aoi in self.aoi_array:
-            sta_aoi_array.append([aoi.type_of_element,float(aoi.x),float(aoi.weight),float(aoi.y),float(aoi.height),aoi.aoi_char])
-        return sta_aoi_array
+    
+    
+    # def create_aoi_array_simplified(self):
+    #     for aoi in self.create_aoi_array()

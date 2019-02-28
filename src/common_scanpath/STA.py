@@ -4,7 +4,13 @@ class STA:
     
     def __init__(self, dataset):
         self.raw_sequences = dataset.create_raw_sequences()
-        self.aoi_data = dataset.create_aoi_array()
+        self.aoi_data = self.create_aoi_array(dataset.aoi_array)
+
+    def create_aoi_array(self, aoi_array):
+    	sta_aoi_array = []
+    	for aoi in aoi_array:
+        	sta_aoi_array.append([aoi.type_of_element,float(aoi.x),float(aoi.weight),float(aoi.y),float(aoi.height),aoi.aoi_char])
+    	return sta_aoi_array
 
     def getNumberedSequence(self, Sequence, aoi_data):
 	    numberedSequence = []
@@ -269,7 +275,6 @@ class STA:
 	    myImportanceThreshold = self.calculateImportanceThreshold(mySequences_num)
 	    myImportantAoIs = self.updateAoIsFlag(self.getNumberDurationOfAoIs(mySequences_num), myImportanceThreshold)
 	    myNewSequences = self.removeInsignificantAoIs(mySequences_num, myImportantAoIs)
-	
 	    # Second-Pass
 	    myNewAoIList = self.getExistingAoIList(myNewSequences)
 	    myNewAoIList = self.calculateTotalNumberDurationofFixationsandNSV(
