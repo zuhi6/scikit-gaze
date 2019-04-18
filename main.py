@@ -33,7 +33,7 @@ from src.EMDAT.BasicParticipant import BasicParticipant
 dataset = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_5_participants.tsv',
     './data/template_sta/regions/SegmentedPages.txt',filtered_dataset=False)
 
-print(STA(dataset).run_sta())
+print(eMine(dataset).run_emine())
 part = EMDAT(dataset).createInstance()
 # # emdat = EMDAT(dataset)
 
