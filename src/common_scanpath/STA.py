@@ -1,4 +1,4 @@
-from src.common_scanpath import scanpath_comparison as scan_comp	
+from src.similarity_algorithms import similarity	
 
 class STA:
     
@@ -9,7 +9,7 @@ class STA:
     def create_aoi_array(self, aoi_array):
     	sta_aoi_array = []
     	for aoi in aoi_array:
-        	sta_aoi_array.append([aoi.type_of_element,float(aoi.x),float(aoi.weight),float(aoi.y),float(aoi.height),aoi.aoi_char])
+        	sta_aoi_array.append([aoi.type_of_element,float(aoi.x),float(aoi.width),float(aoi.y),float(aoi.height),aoi.aoi_char])
     	return sta_aoi_array
 
     def getNumberedSequence(self, Sequence, aoi_data):
@@ -294,7 +294,7 @@ class STA:
 	    formatted_sequences = self.format_sequences(self.raw_sequences)
 	
 	    # Store scanpaths as an array of string-converted original scanpaths
-	    scanpath_strs = scan_comp.convert_to_str_array(formatted_sequences)
+	    scanpath_strs = similarity.convert_to_str_array(formatted_sequences)
 	
 	    common_scanpath = self.getAbstractedSequence(commonSequence)
 	    common_scanpath_str = ''
@@ -306,7 +306,7 @@ class STA:
 	    res_data = {
 	        'identifier': 'STA',
 	        'fixations': common_scanpath,
-	        'similarity': scan_comp.calc_similarity_to_common(scanpath_strs, common_scanpath_str)
+	        'similarity': similarity.calc_similarity_to_common(scanpath_strs, common_scanpath_str)
 	    }
 	
 	    return res_data

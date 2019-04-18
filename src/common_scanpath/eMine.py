@@ -1,6 +1,6 @@
 import copy
 	
-from src.common_scanpath import scanpath_comparison as scan_comp
+from src.similarity_algorithms import similarity
 from src.string_edit_algorithms import longest_common_subsequence
 	
 class eMine:
@@ -48,7 +48,7 @@ class eMine:
 	    formatted_sequences = self.format_sequences(self.raw_sequences)
 	
 	    # Store scanpaths as an array of string-converted original scanpaths (for calculating LCS etc.)
-	    scanpath_strs = scan_comp.convert_to_str_array(formatted_sequences)
+	    scanpath_strs = similarity.convert_to_str_array(formatted_sequences)
 	    scanpath_strs_set = copy.deepcopy(scanpath_strs)
 	
 	    # For determining get_edit_distance distance we need a pure string version of the common scanpath ('ABC')
@@ -58,13 +58,13 @@ class eMine:
 	    while len(scanpath_strs_set):
 	        # Calculate the mutual similarities if there are at least 2 scanpaths in the set
 	        if len(scanpath_strs_set) > 1:
-	            scan_comp.calc_mutual_similarity(scanpath_strs_set)
+	            similarity.calc_mutual_similarity(scanpath_strs_set)
 	        else:
 	            common_scanpath_str = self.simplify_scanpath(scanpath_strs_set[0]['raw_str'])
 	            break
 	
 	        # Get the two most similar scanpaths
-	        most_similar_pair = scan_comp.get_most_similar_pair(scanpath_strs_set)
+	        most_similar_pair = similarity.get_most_similar_pair(scanpath_strs_set)
 	
 	        lcs = longest_common_subsequence.get_longest_common_subsequence(
 	            most_similar_pair[0]['raw_str'],
@@ -76,7 +76,7 @@ class eMine:
 	            break
 	
 	        # Remove the most similar pair of scanpaths from the set
-	        scan_comp.rem_scanpath_strs_by_id(
+	        similarity.rem_scanpath_strs_by_id(
 	            scanpath_strs_set,
 	            [most_similar_pair[0]['identifier'], most_similar_pair[1]['identifier']]
 	        )
@@ -93,7 +93,7 @@ class eMine:
 	    res_data = {
 	        'identifier': 'eMINE',
 	        'fixations': common_scanpath_arr,
-	        'similarity': scan_comp.calc_similarity_to_common(scanpath_strs, common_scanpath_str)
+	        'similarity': similarity.calc_similarity_to_common(scanpath_strs, common_scanpath_str)
 	    }
 	
 	    return res_data

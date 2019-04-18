@@ -1,7 +1,7 @@
 import copy
 import math
 from operator import itemgetter
-from src.common_scanpath import scanpath_comparison as scan_comp
+from src.similarity_algorithms import similarity
 	
 class Dotplots:
     
@@ -432,7 +432,7 @@ class Dotplots:
 	    res_data = {
 	        'identifier': 'Dotplot',
 	        'fixations': common_scanpath,
-	        'similarity': scan_comp.calc_similarity_to_common(scanpath_strs, common_scanpath_str)
+	        'similarity': similarity.calc_similarity_to_common(scanpath_strs, common_scanpath_str)
 	    }
 	
 	    return res_data
