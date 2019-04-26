@@ -35,6 +35,7 @@ dataset = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_5_participant
 
 print(eMine(dataset).run_emine())
 part = EMDAT(dataset).createInstance()
+print(part["P01m"].getAoiData("header"))
 # # emdat = EMDAT(dataset)
 
 # emdat = BasicParticipant('P61','./data/emdat_test/P61-Event-Data.tsv','./data/emdat_test/P61-All-Data.tsv','./data/emdat_test/P61-Fixation-Data.tsv','./data/emdat_test/P61.seg','./data/emdat_test/general.aoi')

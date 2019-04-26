@@ -76,6 +76,10 @@ class BasicParticipant(Participant):
                                                      auto_partition_low_quality_segments = auto_partition_low_quality_segments)
         self.whole_scene = Scene('P'+str(pid),[],rec.all_data,rec.fix_data, Segments = self.segments, aoilist = aois,prune_length = prune_length, require_valid = require_valid_segs )
         self.scenes.insert(0,self.whole_scene)
+
+    
+    def getAoiData(self, name):
+        return self.whole_scene.aoi_data[name].features
        
         
 
@@ -125,4 +129,5 @@ def partition_Basic(segfile):
     segcount = 0
     for l in scenelist.values():
         segcount += len(l)
-    return scenelist, segcount 
+    return scenelist, segcount
+

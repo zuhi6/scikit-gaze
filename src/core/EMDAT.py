@@ -19,4 +19,4 @@ class EMDAT:
         for participant in self.dataset.participants:
             result[participant.id] = BasicParticipant(participant.id,False,participant.fixations,participant.fixations,participant,aoifile=participant.aoi_array)
         return result
-        # return BasicParticipant(dataset.pid, dataset.data_file_path, dataset.fixfile, dataset.segfile, dataset.log_time_offset, dataset.emdat_aoi_file, dataset.prune_length, dataset.require_valid_segs, dataset.auto_partition_low_quality_segments)
+        
