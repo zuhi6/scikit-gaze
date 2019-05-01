@@ -1,16 +1,17 @@
-from src.core.Dataset import Dataset
-from src.common_scanpath.STA import STA
-from src.common_scanpath.eMine import eMine
-from src.common_scanpath.Dotplots import Dotplots
-from src.pattern_search.SPAM import SPAM
-from src.EMDAT.BasicParticipant import BasicParticipant
-from src.core.RQA import RQA
-from src.core.EMDAT import EMDAT
-from src.EMDAT.BasicParticipant import BasicParticipant
+from skgaze.core.Dataset import Dataset
+from skgaze.common_scanpath.STA import STA
+from skgaze.common_scanpath.eMine import eMine
+from skgaze.common_scanpath.Dotplots import Dotplots
+from skgaze.pattern_search.SPAM import SPAM
+from skgaze.EMDAT.BasicParticipant import BasicParticipant
+from skgaze.core.RQA import RQA
+from skgaze.core.EMDAT import EMDAT
+from skgaze.EMDAT.BasicParticipant import BasicParticipant
+from skgaze.string_edit_algorithms import longest_common_substring as ld
 
 
-# dataset = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_5_participants.tsv',
-# './data/template_sta/regions/SegmentedPages.txt')
+dataset = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_5_participants.tsv',
+'./data/template_sta/regions/SegmentedPages.txt')
 
 # print(STA(dataset).run_sta())
 # print(dataset.participants[0].startTimestamp, dataset.participants[0].lastTimestamp)
@@ -18,8 +19,7 @@ from src.EMDAT.BasicParticipant import BasicParticipant
 
 # part = EMDAT(dataset,'P61').createInstance()
 
-
-
+print(SPAM(dataset).runSpam())
 
 
 
@@ -29,10 +29,10 @@ from src.EMDAT.BasicParticipant import BasicParticipant
 
 # dataset = Dataset(pid='P61',eventfile='./data/emdat_test/P61-Event-Data.tsv',dataset_file_path='./data/emdat_test/P61-All-Data.tsv',fixfile='./data/emdat_test/P61-Fixation-Data.tsv',segfile='./data/emdat_test/P61.seg',emdat_aoifile='./data/emdat_test/general.aoi',filtered_dataset=True)
 
-dataset = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_5_participants.tsv',
-    './data/template_sta/regions/SegmentedPages.txt',filtered_dataset=False)
-rqa_test = RQA(dataset)
-print(rqa_test.CalculateReoccurrenceFunction(5,"P01m"))
+# dataset = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_5_participants.tsv',
+#     './data/template_sta/regions/SegmentedPages.txt',filtered_dataset=False)
+# rqa_test = RQA(dataset)
+# print(rqa_test.CalculateReoccurrenceFunction(5,"P01m"))
 
 # print(eMine(dataset).run_emine())
 # part = EMDAT(dataset).createInstance()

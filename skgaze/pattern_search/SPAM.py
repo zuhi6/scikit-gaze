@@ -1,12 +1,12 @@
 from collections import defaultdict
-from src.core.Dataset import Dataset
+from skgaze.core.Dataset import Dataset
 import os
 
 class SPAM:
 
 
     def __init__(self, dataset):
-        self.scanPaths = dataset.create_raw_sequences()
+        self.raw_sequences = dataset.create_raw_sequences()
         self.listOfAois = self.simplify_aoi_array(dataset.aoi_array)
 
    
@@ -53,9 +53,9 @@ class SPAM:
                 numberOfHits = 0
                 flagCounter = 0
                 listInfo = []
-                for i in self.scanPaths:  # foreach scanpath
+                for i in self.raw_sequences:  # foreach scanpath
                     occursInScanpath = False
-                    for k in self.scanPaths[i]:  # foreach AOI in scanpath
+                    for k in self.raw_sequences[i]:  # foreach AOI in scanpath
                         if (j == k[0] and k[2] == index):
                             totalDuration += int(k[1])
                             numberOfHits += 1
@@ -96,7 +96,7 @@ class SPAM:
     #count rows/number of participants
     def countSeq(self):
         countSequences = 0
-        for i in self.scanPaths:
+        for i in self.raw_sequences:
             countSequences += 1
         return countSequences
 
@@ -114,13 +114,13 @@ class SPAM:
         AOITimes = defaultdict(list)
         AOIIndexes = defaultdict(list)
 
-        for i in self.scanPaths:
+        for i in self.raw_sequences:
             mergedScanpath = defaultdict(list)
             timesOfAOIs = defaultdict(list)
             timesOfAOIsTemp = defaultdict(list)
             indexOfAOIs = defaultdict(list)
             AOI = ''
-            for j in self.scanPaths[i]:
+            for j in self.raw_sequences[i]:
                 if j[0] not in mergedScanpath:
                     mergedScanpath[j[0]].append(j[1])  # add AOI + time (ms) to dict
                 if (AOI == j[0]):
@@ -156,11 +156,11 @@ class SPAM:
             for l in self.listOfAois:  # foreach AOI    [IR00, IR01, IR02]
                 counter = 0
                 counter2 = 0
-                for k in self.scanPaths[i]:  # foreach list in list (['R00', 867], [IR08, 846], ['R00', 783]], 'P08': [['R00', 1717])
+                for k in self.raw_sequences[i]:  # foreach list in list (['R00', 867], [IR08, 846], ['R00', 783]], 'P08': [['R00', 1717])
                     if (k[0] == l):
-                        self.scanPaths[i][counter].append(indexOfAOIs[l][counter2])
+                        self.raw_sequences[i][counter].append(indexOfAOIs[l][counter2])
                         try:
-                            if (self.scanPaths[i][counter + 1][0] != k[0]):  # if next AOI is different
+                            if (self.raw_sequences[i][counter + 1][0] != k[0]):  # if next AOI is different
                                 counter2 += 1
                         except:
                             pass

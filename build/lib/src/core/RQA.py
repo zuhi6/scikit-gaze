@@ -1,4 +1,4 @@
-from src.RQA.RQL import RQA as _RQA
+from src.RQA.RQA_funcs import RQA as _RQA
 
 class RQA:
 
@@ -6,7 +6,7 @@ class RQA:
         self.dataset = dataset
         
     
-    def CalculateRecurrenceFunction(self,timeDelayValue, numTimeDelaySample, phaseSpaceClusteringThreshold, pid):
+    def CalculateRecurrenceFunction(self,timeDelayValue, numTimeDelaySample, phaseSpaceClusteringThreshold, pid=False):
 
         result = {}
         if pid:
@@ -20,7 +20,7 @@ class RQA:
             result[participant.id] = _RQA(participant.fixations).CalculateRecurrenceFunction(timeDelayValue, numTimeDelaySample, phaseSpaceClusteringThreshold)
         return result
 
-    def CalculateReoccurrenceFunction(self, fixationSpaceDistanceRadius, pid):
+    def CalculateReoccurrenceFunction(self, fixationSpaceDistanceRadius, pid=False):
 
         result = {}
         if pid:
