@@ -10,18 +10,28 @@ from skgaze.EMDAT.BasicParticipant import BasicParticipant
 from skgaze.similarity_algorithms import longest_common_substring as ld
 
 
-dataset = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_5_participants.tsv',
+dataset = Dataset('./data/template_sta/scanpaths/DOD2016_fixations.tsv',
 './data/template_sta/regions/SegmentedPages.txt')
 
-# print(STA(dataset).run_sta())
-# print(dataset.participants[0].startTimestamp, dataset.participants[0].lastTimestamp)
+dataset_2 = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_2_participants.tsv',
+'./data/template_sta/regions/SegmentedPages.txt')
 
 
-# part = EMDAT(dataset,'P61').createInstance()
+dataset_5 = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_5_participants.tsv',
+'./data/template_sta/regions/SegmentedPages.txt')
+
+dataset_10 = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_10_participants.tsv',
+'./data/template_sta/regions/SegmentedPages.txt')
 
 print(SPAM(dataset).runSpam())
 
+# # print(STA(dataset).run_sta())
+# # print(dataset.participants[0].startTimestamp, dataset.participants[0].lastTimestamp)
 
+
+# # part = EMDAT(dataset,'P61').createInstance()
+
+# print(SPAM(dataset).runSpam())
 
 
 # emdat = EMDAT(dataset)

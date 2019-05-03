@@ -1,6 +1,7 @@
 from collections import defaultdict
 from skgaze.core.Dataset import Dataset
 import os
+import math
 
 class SPAM:
 
@@ -8,6 +9,8 @@ class SPAM:
     def __init__(self, dataset):
         self.raw_sequences = dataset.create_raw_sequences()
         self.listOfAois = self.simplify_aoi_array(dataset.aoi_array)
+        self.listOfScanpaths = self.create_list_of_scanpaths(dataset)
+        self.result = []
 
    
     def simplify_aoi_array(self, aoi_array):
@@ -16,173 +19,245 @@ class SPAM:
         	spam_aoi_array.append(aoi.aoi_char)
         return spam_aoi_array
 
-    # Use threshold on each instance of each AOI to find only trending instance AOIs
-    def find_trending_AOIs(self, AOIsInfo, threshold, countSequences):
-        trendingAOIs = defaultdict(list)
-        for AOI in AOIsInfo:
-            for index in AOIsInfo[AOI]:
-                if ((AOIsInfo[AOI][index][0] >= threshold[AOI][0] and AOIsInfo[AOI][index][1] >= threshold[AOI][1]) or (
-                        AOIsInfo[AOI][index][3] == countSequences)):
-                    trendingAOIs[AOI].append(index)
-        return trendingAOIs
+    def create_list_of_scanpaths(self,dataset):
+        result = []
+        for participant in dataset.participants:
+            result.append(participant.scanpath)
+        return result
 
-    # Find threshold for each AOI
-    def find_thresholds(self, AOIsInfo):
-        threshold = defaultdict(list)
-        # Find threshold for each AOI (minDuration and minHits in all AOIs)
-        for AOI in AOIsInfo:
-            minDuration = 1000000
-            minHits = 1000000
-            for index in AOIsInfo[AOI]:
-                if (AOIsInfo[AOI][index][2] == True):
-                    if (AOIsInfo[AOI][index][0] < minDuration):
-                        minDuration = AOIsInfo[AOI][index][0]
-                    if (AOIsInfo[AOI][index][1] < minHits):
-                        minHits = AOIsInfo[AOI][index][1]
-            threshold[AOI] = [minDuration, minHits]
 
-        return threshold
+    def runSpam(self, minsup_percenta=0.5, minlength=1, maxlength=4, maxgap=1):
+    
+        dlzkasekvencii = []
+        dlzkasuboru = 0
+        SPAM.pocet_najdenych_vzorov = 0
 
-    # Count totalDuration, numberOfHits and number in how many rows occurs this instance
-    def learn_info(self, listOfMaxIndexes, countSequences):
-        AOIsInfo = defaultdict(list)
-        for j in self.listOfAois:  # foreach AOI in list
-            AOIsIndexes = defaultdict(list)
-            for index in range(1, listOfMaxIndexes[j] + 1):
-                totalDuration = 0
-                numberOfHits = 0
-                flagCounter = 0
-                listInfo = []
-                for i in self.raw_sequences:  # foreach scanpath
-                    occursInScanpath = False
-                    for k in self.raw_sequences[i]:  # foreach AOI in scanpath
-                        if (j == k[0] and k[2] == index):
-                            totalDuration += int(k[1])
-                            numberOfHits += 1
-                            occursInScanpath = True
-                    if (occursInScanpath == True):
-                        flagCounter += 1
-                if (flagCounter > countSequences / 2):
-                    listInfo.append(totalDuration)
-                    listInfo.append(numberOfHits)
-                    listInfo.append(True)
-                    listInfo.append(flagCounter)
-                    AOIsIndexes[index] = listInfo
-                    AOIsInfo[j] = AOIsIndexes
-                else:
-                    listInfo.append(totalDuration)
-                    listInfo.append(numberOfHits)
-                    listInfo.append(False)
-                    listInfo.append(flagCounter)
-                    AOIsIndexes[index] = listInfo
-                    AOIsInfo[j] = AOIsIndexes
-        return AOIsInfo
+        supportnumb = 0
+        sid = 0  # id participanta
+        tid = 0  # id AOI
+        verticalDB = {}
+        supportDB = {}
+       
+        # Krok 1 ulozime si poziciu prvej AOI kazdej sekvencie pohladu, a zaroven aj poslednu poslednej AOI
+    
+        for line in range(0,len(self.listOfScanpaths)):
+            dlzkasekvencii.append(dlzkasuboru)
+            for i in self.listOfScanpaths[line]:
+                dlzkasuboru += 1
+            #dlzkasekvencii.append(dlzkasuboru)
+            #for ch in line:
+            #    if ((ch >= 'A') and (ch <= 'Z')):
+            #        dlzkasuboru += 1
+        dlzkasekvencii.append(dlzkasuboru)  # ulozime si aj poziciu posledneho bitu
+  
 
-    # find maxIndex in each AOI, (max index of instance of AOI)
-    def find_max_indexes(self, AOIIndexes):
-        listOfMaxIndexes = defaultdict(list)
-        for AOI in self.listOfAois:
-            maxIndex = 0
-            for i in AOIIndexes:
-                for j in AOIIndexes[i]:
-                    if (j == AOI and maxIndex < max(AOIIndexes[i][j])):
-                        maxIndex = max(AOIIndexes[i][j])
-            listOfMaxIndexes[AOI] = maxIndex
-        return listOfMaxIndexes
 
+        #Krok 2 vypocitame si minsup
+        minsup = math.ceil(float(minsup_percenta) * (len(dlzkasekvencii)-1))
+        if minsup == 0:
+            minsup = 1
+
+        #Krok 3
+        #vytvorime vertikalnu reprezentaciu databazy
+        #ukladame poziciu kazdej AOI a poradie sekvencie kazdej AOI priradime
+        #bitmapu (ak taka AOI este neexistuje, vytvorime ju a vlozime do vertikalnej reprezentacie databazy)
+        #nasledne musime nastavit bit na 1 na takej pozicii v bitmape, v ktorej sa AOI vyskytuje
+
+  
+        for line in range(0,len(self.listOfScanpaths)):
+            for i in self.listOfScanpaths[line]:
+                if i[0] not in verticalDB:
+                    
+                    verticalDB[i[0]] = [0] * dlzkasekvencii[-1]
+                    supportDB[i[0]] = 0
+                verticalDB[i[0]][dlzkasekvencii[sid] + tid] = 1
+                tid += 1
+            tid = 0
+            sid += 1    #posun na dalsi riadok/participanta
+        sid -= 1
+        #{'A': [1, 0, 0, 1, 0, 0...], 'B': [0, 1, 0, 0, 0, 0...], 'C': [0, 0, 1, 0, 1, 1...]}
+
+        #Krok 4 zistime support jednotlivych oblasti zaujmu
+        for i in verticalDB:
+            for j in range(sid+1):
+                for k in range(0, (dlzkasekvencii[j+1] - dlzkasekvencii[j])):
+                    if verticalDB[i][dlzkasekvencii[j]+k] is 1:
+                        supportnumb += 1
+                        supportDB[i] = supportnumb
+                        break
+            supportnumb = 0
+
+        #Krok 5
+        #Ulozime si vzory, ktore sa nachadzaju vo viacerych sekvenciach ako je minsup
+        frequentItems = []
+        
+        for i in supportDB:
+            if int(supportDB.get(i)) >= int(minsup):
+                if (int(minlength) <= 1) and (int(maxlength) >= 1):
+                    #print('[\'',i,'\']', "support", supportDB[i])
+                    SPAM.pocet_najdenych_vzorov += 1
+                    self.result.append([SPAM.pocet_najdenych_vzorov, i, supportDB[i]])
+                frequentItems.append(i)
+
+        if (maxlength == 1):
+            return
+        #Krok 6
+        #vyhladavanie do hlbky s vykonanim S-Step
+        for i in verticalDB:
+            prefix = []
+            prefix.append(i)
+            self.dfsPruning(prefix, verticalDB[i], frequentItems, 2, minsup, minlength, maxlength, dlzkasekvencii,
+                             maxgap, verticalDB)
+
+        return self.result
+    supportWithoutGapTotal = 0
     
 
-    
-    #count rows/number of participants
-    def countSeq(self):
-        countSequences = 0
-        for i in self.raw_sequences:
-            countSequences += 1
-        return countSequences
+    #s_n = iba vzory, ktore vieme, ze sa budu urcite vyskytovat v najcastejsich vzoroch = frequentitems
+    def dfsPruning(self,prefix, bitmap_prefix, s_n, m, minsup, minlength, maxlength, dlzkasekvencii,
+                   maxgap, verticalDB):
+        sTemp = []
+        sTempBitmaps = {}
+        supportDB2 = {}     ##ukladame si support prvkov
 
+        for i in s_n:
+            newBitmap = self.newBitmap(bitmap_prefix, dlzkasekvencii, maxgap, verticalDB[i])
+            if (SPAM.supportWithoutGapTotal >= minsup):
+                sTemp.append(i)
+                sTempBitmaps[i] = newBitmap
+                supportDB2[i] = SPAM.supportOfItem
 
+            SPAM.supportWithoutGapTotal = 0
+            SPAM.supportOfItem = 0
 
-    def runSpam(self):  
-         # count sequences
-        countSequences = self.countSeq()
+        for j in range(0, len(sTemp)):
+            item = sTemp[j]
 
-        # we got dict {P07: [[IR08, 846], ['R00', 783]], 'P08': [['R00', 1717], ['R00', 117]...]}
-        # Step 2 - Rate AOIs
-        # Merge AOIs; for each scanpath and AOI save time to AOITimes P08: R00: [2736.0, 283.0, 3234.0, 434.0...]
-        # In each scanpath index all AOIs | AOIIndexes P08: R00 [4, 14, 3, 12...]
-        # Append index of instance to each [AOI, time] in scanpath
-        AOITimes = defaultdict(list)
-        AOIIndexes = defaultdict(list)
+            prefixSStep = self.cloneSequence(prefix)
+            prefixSStep.append(item)
 
-        for i in self.raw_sequences:
-            mergedScanpath = defaultdict(list)
-            timesOfAOIs = defaultdict(list)
-            timesOfAOIsTemp = defaultdict(list)
-            indexOfAOIs = defaultdict(list)
-            AOI = ''
-            for j in self.raw_sequences[i]:
-                if j[0] not in mergedScanpath:
-                    mergedScanpath[j[0]].append(j[1])  # add AOI + time (ms) to dict
-                if (AOI == j[0]):
-                    mergedScanpath[j[0]][-1] += j[1]
+            newBitmap = sTempBitmaps[sTemp[j]]
+            if (supportDB2[item] >= minsup):
+                if (m >= int(minlength)):
+                    #print(prefixSStep, "support", supportDB2[item])
+                    SPAM.pocet_najdenych_vzorov += 1
+                    self.result.append([SPAM.pocet_najdenych_vzorov, prefixSStep, supportDB2[item]])
+                if (int(maxlength) > m):
+                    self.dfsPruning(prefixSStep, newBitmap, sTemp, m+1, minsup, minlength, maxlength, dlzkasekvencii,
+                                    maxgap, verticalDB)
+
+    #global parameters
+    lastSID = -1
+    supportOfItem = 0
+    # SavePaterns
+    pocet_najdenych_vzorov = 0
+    najdeneVzory = {}
+
+    def cloneSequence(self, items):
+        sequence = []
+        for i in items:
+            sequence.append(i)
+        return sequence
+
+    #bitmapa_pismena = toho pismena, ktore sa vola v kroku 6; pri rekurzivnom volani je to novovzniknuta bitmapa
+    #pismeno = bitmapa toho pismena, ktore sa prave nachadza v cykle frekventovanych AOI
+
+    def newBitmap(self, bitmap_prefix, dlzkasekvencii, maxgap, pismeno):
+        newBitmap = [0] * dlzkasekvencii[-1]
+        #sid poslednej sekvencie, vlozenej do bitmapy, ktory obsahuje 1
+        SPAM.lastSID = -1
+        k = 0
+        premenna = True
+        #ak je maxgap 0, tak hladame spolocne vzory, ktore mozu mat medzi sebou lubovolne velku vzdialenost
+        if int(maxgap) == 0:
+            bitK = bitmap_prefix.index(1, k, dlzkasekvencii[-1])
+            while True:
+                sid = self.bitToSid(bitK, dlzkasekvencii)
+                lastBitofSid = dlzkasekvencii.__getitem__(sid+1) - 1
+                match = False
+                if 1 not in pismeno[bitK+1:]:
+                    premenna = False
                 else:
-                    mergedScanpath[j[0]].append(j[1])
-                AOI = j[0]
-            for j in mergedScanpath:
-                timesOfAOIs[j] = mergedScanpath[j][1:]
-                timesOfAOIsTemp[j] = mergedScanpath[j][1:]
-            AOITimes[i] = timesOfAOIs
+                    bit = pismeno.index(1, bitK + 1, dlzkasekvencii[-1])
 
-            # foreach AOI index position
-            for j in timesOfAOIsTemp:
-                counterOfIndex = len(timesOfAOIsTemp[j])
-                listOfIndexesofAOI = []
-                listOfIndexesofAOI = [0] * len(timesOfAOIsTemp[j])
-                for l in range(0, len(timesOfAOIsTemp[j])):
-                    counter = 0
-                    premenna = 0
-                    minimum = 100000
-                    for k in timesOfAOIsTemp[j]:
-                        if int(k) <= minimum:
-                            minimum = int(k)
-                            premenna = counter
-                        counter += 1
-                    listOfIndexesofAOI[premenna] = counterOfIndex
-                    timesOfAOIsTemp[j][premenna] = 1000000  # set value of this time to 1000000
-                    counterOfIndex -= 1
-                indexOfAOIs[j] = listOfIndexesofAOI
-            AOIIndexes[i] = indexOfAOIs
+                while premenna and (bit <= lastBitofSid):
+                    newBitmap[bit] = 1
+                    match = True
+                    if (1 not in pismeno[bit+1:]):
+                        break
+                    bit = pismeno.index(1, bit + 1, dlzkasekvencii[-1])
 
-            for l in self.listOfAois:  # foreach AOI    [IR00, IR01, IR02]
-                counter = 0
-                counter2 = 0
-                for k in self.raw_sequences[i]:  # foreach list in list (['R00', 867], [IR08, 846], ['R00', 783]], 'P08': [['R00', 1717])
-                    if (k[0] == l):
-                        self.raw_sequences[i][counter].append(indexOfAOIs[l][counter2])
-                        try:
-                            if (self.raw_sequences[i][counter + 1][0] != k[0]):  # if next AOI is different
-                                counter2 += 1
-                        except:
-                            pass
-                    counter += 1
+                if match == True:
+                    if (sid != SPAM.lastSID):
+                        SPAM.supportWithoutGapTotal += 1
+                        SPAM.supportOfItem += 1
+                        SPAM.lastSID = sid
 
-        # Step 3 - Find and save only trending AOIs
-        # find maxIndex in each AOI, (max index of instance of AOI)
-        listOfMaxIndexes = defaultdict(list)
-        listOfMaxIndexes = self.find_max_indexes(AOIIndexes)
+                k = bitK + 1
+                if 1 not in bitmap_prefix[k:]:
+                    break
+                else:
+                    bitK = bitmap_prefix.index(1, k, dlzkasekvencii[-1])
 
-        # Count totalDuration, numberOfHits and number in how many rows occurs this instance foreach instance of AOI
-        AOIsInfo = defaultdict(list)
-        AOIsInfo = self.learn_info(listOfMaxIndexes, countSequences)
+        #ak je gap medzi AOI ziadna a vacsia
+        else:
+            previousSid = -1
+            bitK = bitmap_prefix.index(1, k, dlzkasekvencii[-1])
 
-        # AOI: instanceOfAOI(index): totalDuration, numbOfHits, in more than countSequences/2, numbOfSequence
-        # Example: R00: 1: 5134, 12, True, 4
-        threshold = defaultdict(list)
-        threshold = self.find_thresholds(AOIsInfo)
+            #AND medzi bitmapy (bitmap_prefix a pimeno)
+            while True:
+                sid = self.bitToSid(bitK, dlzkasekvencii)
+                lastBitofSid = dlzkasekvencii.__getitem__(sid + 1) - 1
+                match = False
+                matchWithoutGap = False
 
-        # Use threshold on each instance of each AOI to find only trending instance AOIs
-        # Example of trending AOIs: R00: [1,2,3,4], IR03: [1,2]
-        trendingAOIs = defaultdict(list)
-        trendingAOIs = self.find_trending_AOIs(AOIsInfo, threshold, countSequences)
+                if 1 not in pismeno[bitK+1:]:
+                    premenna = False
+                else:
+                    bit = pismeno.index(1, bitK + 1, dlzkasekvencii[-1])
 
-        print(trendingAOIs)
+                #jedtnotkovy bit sa nachadza este stale v tej istej sid (sekvencie pohladu),
+                #ak nie, preskocim a idem na dalsiu sekvenciu
+                while premenna and (bit <= lastBitofSid):
+                    matchWithoutGap = True
+
+                    if (bit - bitK > int(maxgap)):
+                        break
+
+                    newBitmap[bit] = 1
+                    match = True
+                    if (1 not in pismeno[bit+1:]):
+                        break
+                    #vyuzitie pri ak je maxgap > 1
+                    bit = pismeno.index(1, bit + 1, dlzkasekvencii[-1])
+
+                if matchWithoutGap and previousSid!= sid:
+                    SPAM.supportWithoutGapTotal += 1
+                    previousSid = sid
+
+                if match == True:
+                    #++support ak je to iny participant
+                    if (sid != SPAM.lastSID):
+                        SPAM.supportOfItem += 1
+                    SPAM.lastSID = sid
+
+                #Vyhladanie dalsieho najblizsie bitu v bitmape, nastaveneho na 1, ak taky neexistuje, koncime
+                k = bitK + 1
+                if 1 not in bitmap_prefix[k:]:
+                    break
+                else:
+                    bitK = bitmap_prefix.index(1, k, dlzkasekvencii[-1])
+
+        return newBitmap
+
+    #SavePaterns
+    pocet_najdenych_vzorov = 0
+    najdeneVzory = {}
+
+    def bitToSid(self, bitK, dlzkasekvencii):
+        for i in range(1, len(dlzkasekvencii)):
+            if bitK < dlzkasekvencii[i]:
+                return i-1
+        return i
+
+    #Save patterns of length 1 to file

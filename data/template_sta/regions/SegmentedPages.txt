@@ -29,5 +29,5 @@ down-menu-media 981 155 1524 368 b
 down-menu-links 1136 194 1525 364 c
 down-menu-accessiblity 1331 207 1526 362 d
 main-body 0 1862 394 850 e
-Rectangle 32 0 339 388 1136 f
+Rectangle 320 339 388 1136 f
 Polygon 1227 635 390 453 g
