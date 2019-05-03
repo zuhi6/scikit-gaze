@@ -1,7 +1,7 @@
 import copy
 	
 from skgaze.similarity_algorithms import similarity
-from skgaze.string_edit_algorithms import longest_common_subsequence
+from skgaze.similarity_algorithms import longest_common_subsequence
 	
 class eMine:
 

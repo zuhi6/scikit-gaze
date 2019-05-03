@@ -7,7 +7,7 @@ from skgaze.EMDAT.BasicParticipant import BasicParticipant
 from skgaze.core.RQA import RQA
 from skgaze.core.EMDAT import EMDAT
 from skgaze.EMDAT.BasicParticipant import BasicParticipant
-from skgaze.string_edit_algorithms import longest_common_substring as ld
+from skgaze.similarity_algorithms import longest_common_substring as ld
 
 
 dataset = Dataset('./data/template_sta/scanpaths/DOD2016_fixations_5_participants.tsv',

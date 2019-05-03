@@ -1,4 +1,4 @@
-from skgaze.string_edit_algorithms import levenshtein_distance
+from skgaze.similarity_algorithms import levenshtein_distance
 
 def calc_similarity(scanpath1, scanpath2, algorithm=False):
     """ Calculates similarity between two scanpath strings represented as percentage. """
