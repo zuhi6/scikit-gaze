@@ -27,7 +27,7 @@ class SPAM:
 
 
     def runSpam(self, minsup_percenta=0.5, minlength=1, maxlength=4, maxgap=1):
-    
+        self.result = []
         dlzkasekvencii = []
         dlzkasuboru = 0
         SPAM.pocet_najdenych_vzorov = 0

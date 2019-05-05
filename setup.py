@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="scikit-gaze",
-    version="0.0.7",
+    version="0.0.9",
     author="Zajic Michal",
     author_email="zajicmichal6@gmail.com",
     description="Library for scanpath comparison",
