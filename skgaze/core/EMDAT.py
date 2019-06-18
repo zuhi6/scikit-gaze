@@ -14,8 +14,9 @@ class EMDAT:
         result = {}
         if self.pid:
            for participant in self.dataset.participants:
-               if participant.id == self.pid:   
-                    return BasicParticipant(self.pid,False,self.dataset.participants[0].fixations,self.dataset.participants[0].fixations,self.dataset.participants[0],aoifile=self.dataset.participants[0].aoi_array)
+               if participant.id == self.pid:
+                    result[participant.id] = BasicParticipant(self.pid,False,participant.fixations,participant.fixations,participant,aoifile=participant.aoi_array)
+                    return result
         for participant in self.dataset.participants:
             result[participant.id] = BasicParticipant(participant.id,False,participant.fixations,participant.fixations,participant,aoifile=participant.aoi_array)
         return result
